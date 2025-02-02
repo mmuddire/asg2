@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title>Assignment 2</title>
+        <script src="asg2.js"></script>
+        <script src="Point.js"></script>
+        <script src="Triangle.js"></script>
+        <script src="Circle.js"></script>
+        <script src="Cube.js"></script>
+        <script src="Pyramid.js"></script>
+        <script src="lib/cuon-utils.js"></script>
+        <script src="lib/cuon-matrix.js"></script>
+        <script src="lib/webgl-utils.js"></script>
+        <script src="lib/webgl-debug.js"></script> 
+           
+    </head>
+    
+    <body onload="main()">
+        <canvas id = "webgl" width="400" height="400">
+        Please use a browser that supports "canvas"
+        </canvas>
+
+        <p id="numdot"> ... </p>
+
+
+        <br><br>
+        Tail <input type="range" min="50" max="115" value="50" class="slider" id="tailSlide">
+        Tail Animation: 
+        <button type="button" id = "TailAnimeOn">ON</button>
+        <button type="button" id = "TailAnimeOff">OFF</button>
+        
+        <br><br>
+        Head <input type="range" min="-50" max="50" value="0" class="slider" id="headSlide">
+        Head Animation: 
+        <button type="button" id = "HeadAnimeOn">ON</button>
+        <button type="button" id = "HeadAnimeOff">OFF</button>
+        
+        <br><br>
+        Ears <input type="range" min="-90" max="15" value="-90" class="slider" id="earSlide">
+        Ears Animation: 
+        <button type="button" id = "EarsAnimeOn">ON</button>
+        <button type="button" id = "EarsAnimeOff">OFF</button>
+
+        <br><br>
+        Camera Angle <input type="range" min="0" max="90" value="5" class="slider" id="angleSlide">
+        
+        
+
+
+        
+
+    </body>
+
+</html>
