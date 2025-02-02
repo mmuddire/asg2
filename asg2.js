@@ -156,9 +156,33 @@ function main() {
 
     addActionsForHtmlUI();
     
+    canvas.onmousedown = function(ev) {
+        isDragging = true;
+        lastMouseX = ev.clientX;
+        lastMouseY = ev.clientY;
+    };
 
-    canvas.onmousedown = click;
-    canvas.onmousemove = function(ev) {if(ev.buttons == 1) {click(ev)}};
+    canvas.onmousemove = function(ev) {
+        if (isDragging) {
+            const deltaX = ev.clientX - lastMouseX;
+            const deltaY = ev.clientY - lastMouseY;
+
+            // Update rotation angles
+            g_globalAngleY += deltaX * 0.5;
+            g_globalAngleX -= deltaY * 0.5; // Negative for natural rotation
+
+            // Clamp vertical rotation
+            g_globalAngleX = Math.max(-90, Math.min(90, g_globalAngleX));
+
+            lastMouseX = ev.clientX;
+            lastMouseY = ev.clientY;
+            renderAllShapes();
+        }
+    };
+
+    canvas.onmouseup = canvas.onmouseleave = function() {
+        isDragging = false;
+    };
   
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
   
@@ -313,7 +337,10 @@ function renderAllShapes(){
 
     var startTime = performance.now();
 
-    var globalRotMat= new Matrix4().rotate(g_globalCamAngle,0,1,0);
+    const globalRotMat = new Matrix4()
+        .rotate(g_globalAngleY, 0, 1, 0) // Y-axis rotation
+        .rotate(g_globalAngleX, 1, 0, 0); // X-axis rotation
+
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
@@ -449,13 +476,11 @@ function renderAllShapes(){
 
     var tail = new Pyramid();
     tail.color = [0.439, 0.231, 0.055, 1];
-    tail.matrix.setTranslate(-0.7,-0.1,.001);
+    tail.matrix.setTranslate(-0.7,-0.1,.2);
     tail.matrix.rotate(g_tailAngle, 0,0,1);
     tail.matrix.scale(0.15, .6, .3);
     tail.render();
     
-    
-
     var duration = performance.now() - startTime;
     sendTextToHTML(" ms: " + Math.floor(duration) + " fps:  " + Math.floor(10000/duration)/10, "numdot");
 }
