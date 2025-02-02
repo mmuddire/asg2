@@ -101,6 +101,7 @@ let g_leftFAnime = false;
 let g_rightFAnime = false;
 let g_leftPAnime = false;
 let g_rightPAnime = false;
+let g_mouseR = false;
 
 let g_globalAngleY = 0; // Horizontal rotation (Y-axis)
 let g_globalAngleX = 0; // Vertical rotation (X-axis)
@@ -134,6 +135,9 @@ function addActionsForHtmlUI(){
 
     document.getElementById('rightPawAnimeOff').onclick = function(){g_rightPAnime=false;};
     document.getElementById('rightPawAnimeOn').onclick = function(){g_rightPAnime=true;};
+
+    document.getElementById('mouseROff').onclick = function(){g_mouseR=false;};
+    document.getElementById('mouseROn').onclick = function(){g_mouseR=true;};
 
     document.getElementById('tailSlide').addEventListener('mousemove', function() {g_tailAngle = this.value; renderAllShapes(); }); 
     document.getElementById('headSlide').addEventListener('mousemove', function() {g_headAngle = this.value; renderAllShapes(); }); 
@@ -336,12 +340,19 @@ function updateAnimationAngles(){
 function renderAllShapes(){
 
     var startTime = performance.now();
-
-    const globalRotMat = new Matrix4()
+    if (g_mouseR){
+        const globalRotMat = new Matrix4()
         .rotate(g_globalAngleY, 0, 1, 0) // Y-axis rotation
         .rotate(g_globalAngleX, 1, 0, 0); // X-axis rotation
 
-    gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+        gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+    } else {
+        var globalRotMat= new Matrix4().rotate(g_globalCamAngle,0,1,0);
+        gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+    }
+    
+
+    
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 
