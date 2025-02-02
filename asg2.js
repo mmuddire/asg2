@@ -79,17 +79,31 @@ const CIRCLE = 2;
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize=5;
 let g_selectedType=POINT; 
-let g_globalAngle = 0;
-let g_tailAngle = 50;
+let g_globalCamAngle = 0;
+
+let g_tailAngle = 115;
 let g_headAngle = 0;
 let g_earsAngle = -90;
-let g_leftAngle = 180;
+let g_leftAngle = 210;
 let g_rightAngle = 180;
+let g_leftFAngle = 0;
+let g_rightFAngle = 0;
+let g_leftPAngle = 0;
+let g_rightPAngle = 0;
+
+
 let g_tailAnime = false;
 let g_headAnime = false;
 let g_earsAnime = false;
 let g_leftLegAnime = false;
 let g_rightLegAnime = false;
+let g_leftFAnime = false;
+let g_rightFAnime = false;
+let g_leftPAnime = false;
+let g_rightPAnime = false;
+
+let g_globalAngleY = 0; // Horizontal rotation (Y-axis)
+let g_globalAngleX = 0; // Vertical rotation (X-axis)
 
 
 function addActionsForHtmlUI(){
@@ -106,16 +120,32 @@ function addActionsForHtmlUI(){
     document.getElementById('leftLegsAnimeOff').onclick = function(){g_leftLegAnime=false;};
     document.getElementById('leftLegsAnimeOn').onclick = function(){g_leftLegAnime=true;};
 
+    document.getElementById('leftFeetAnimeOff').onclick = function(){g_leftFAnime=false;};
+    document.getElementById('leftFeetAnimeOn').onclick = function(){g_leftFAnime=true;};
+
+    document.getElementById('leftPawAnimeOff').onclick = function(){g_leftPAnime=false;};
+    document.getElementById('leftPawAnimeOn').onclick = function(){g_leftPAnime=true;};
+
     document.getElementById('rightLegsAnimeOff').onclick = function(){g_rightLegAnime=false;};
     document.getElementById('rightLegsAnimeOn').onclick = function(){g_rightLegAnime=true;};
+
+    document.getElementById('rightFeetAnimeOff').onclick = function(){g_rightFAnime=false;};
+    document.getElementById('rightFeetAnimeOn').onclick = function(){g_rightFAnime=true;};
+
+    document.getElementById('rightPawAnimeOff').onclick = function(){g_rightPAnime=false;};
+    document.getElementById('rightPawAnimeOn').onclick = function(){g_rightPAnime=true;};
 
     document.getElementById('tailSlide').addEventListener('mousemove', function() {g_tailAngle = this.value; renderAllShapes(); }); 
     document.getElementById('headSlide').addEventListener('mousemove', function() {g_headAngle = this.value; renderAllShapes(); }); 
     document.getElementById('earSlide').addEventListener('mousemove', function() {g_earsAngle = this.value; renderAllShapes(); }); 
     document.getElementById('leftSlide').addEventListener('mousemove', function() {g_leftAngle = this.value; renderAllShapes(); }); 
     document.getElementById('rightSlide').addEventListener('mousemove', function() {g_rightAngle = this.value; renderAllShapes(); }); 
+    document.getElementById('leftFSlide').addEventListener('mousemove', function() {g_leftFAngle = this.value; renderAllShapes(); }); 
+    document.getElementById('rightFSlide').addEventListener('mousemove', function() {g_rightFAngle = this.value; renderAllShapes(); });
+    document.getElementById('leftPSlide').addEventListener('mousemove', function() {g_leftPAngle = this.value; renderAllShapes(); }); 
+    document.getElementById('rightPSlide').addEventListener('mousemove', function() {g_rightPAngle = this.value; renderAllShapes(); }); 
 
-    document.getElementById('angleSlide').addEventListener('mousemove', function() {g_globalAngle = this.value; renderAllShapes(); }); 
+    document.getElementById('camAngleSlide').addEventListener('mousemove', function() {g_globalCamAngle = this.value; renderAllShapes(); }); 
     
 }
   
@@ -125,6 +155,7 @@ function main() {
     connectVariablesToGLSL();
 
     addActionsForHtmlUI();
+    
 
     canvas.onmousedown = click;
     canvas.onmousemove = function(ev) {if(ev.buttons == 1) {click(ev)}};
@@ -214,7 +245,7 @@ function updateAnimationAngles(){
         let maxAngle = 50;
         let angleRange = (maxAngle - minAngle) / 2;
         let midAngle = (maxAngle + minAngle) / 2;
-        g_headAngle = midAngle + angleRange * Math.sin(g_seconds);
+        g_headAngle = midAngle + angleRange * Math.sin(.7*g_seconds);
     }
 
     if(g_earsAnime){
@@ -230,7 +261,23 @@ function updateAnimationAngles(){
         let maxAngle = 240;
         let angleRange = (maxAngle - minAngle) / 2;
         let midAngle = (maxAngle + minAngle) / 2;
-        g_leftAngle = midAngle + angleRange * Math.sin(-g_seconds);
+        g_leftAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
+    }
+
+    if(g_leftFAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_leftFAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
+    }
+
+    if(g_leftPAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_leftPAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
     }
 
     if(g_rightLegAnime){
@@ -238,15 +285,35 @@ function updateAnimationAngles(){
         let maxAngle = 240;
         let angleRange = (maxAngle - minAngle) / 2;
         let midAngle = (maxAngle + minAngle) / 2;
-        g_rightAngle = midAngle + angleRange * Math.sin(g_seconds);
+        g_rightAngle = midAngle + angleRange * Math.sin(1.5*g_seconds);
     }
+
+    if(g_rightFAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_rightFAngle = midAngle + angleRange * Math.sin(1.5*g_seconds);
+    }
+
+    if(g_rightPAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_rightPAngle = midAngle + angleRange * Math.sin(g_seconds);
+    }
+
+    
+
+
 }
 
 function renderAllShapes(){
 
     var startTime = performance.now();
 
-    var globalRotMat= new Matrix4().rotate(g_globalAngle,0,1,0);
+    var globalRotMat= new Matrix4().rotate(g_globalCamAngle,0,1,0);
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
@@ -307,17 +374,33 @@ function renderAllShapes(){
 
     var leftFront2 = new Cube();
     leftFront2.matrix = leftFCoord;
-    leftFront2.matrix.translate(0,.3,0.0);
-    leftFront2.matrix.rotate(0, 0,0,1);
+    leftFront2.matrix.translate(0,.3,0.001);
+    leftFront2.matrix.rotate(g_leftFAngle, 0,0,1);
     leftFront2.matrix.scale(0.1, .2, .1);
     leftFront2.render([0.922, 0.871, 0.827,1]);
 
+    var leftFPaw = new Cylinder();
+    leftFPaw.color = [0.341, 0.173, 0.035, 1.0]; 
+    leftFPaw.matrix = leftFCoord;
+    leftFPaw.matrix.translate(0, .99, .7); 
+    leftFPaw.matrix.rotate(90, 90, g_leftPAngle, 1); //change the 3rd one
+    leftFPaw.matrix.scale(2,1,.4);
+    leftFPaw.render();
+
     var leftBack2 = new Cube();
     leftBack2.matrix = leftBCoord;
-    leftBack2.matrix.translate(0, .3,0.0);
-    leftBack2.matrix.rotate(0, 0,0,1);
+    leftBack2.matrix.translate(0, .3,0.001);
+    leftBack2.matrix.rotate(g_leftFAngle, 0,0,1);
     leftBack2.matrix.scale(0.1, .2, .1);
     leftBack2.render([0.922, 0.871, 0.827,1]);
+
+    var leftBPaw = new Cylinder();
+    leftBPaw.color = [0.341, 0.173, 0.035, 1.0, 1.0]; 
+    leftBPaw.matrix = leftBCoord;
+    leftBPaw.matrix.translate(0, .99, .7); 
+    leftBPaw.matrix.rotate(90, 90, g_leftPAngle, 1); //change the 3rd one
+    leftBPaw.matrix.scale(2,1,.4);
+    leftBPaw.render();
 
     //right
     var rightFront1 = new Cube();
@@ -336,17 +419,33 @@ function renderAllShapes(){
 
     var rightFront2 = new Cube();
     rightFront2.matrix = rightFCoord;
-    rightFront2.matrix.translate(0,.3,0.0);
-    rightFront2.matrix.rotate(0, 0,0,1);
+    rightFront2.matrix.translate(0,.3,0.001);
+    rightFront2.matrix.rotate(g_rightFAngle, 0,0,1);
     rightFront2.matrix.scale(0.1, .2, .1);
     rightFront2.render([0.922, 0.871, 0.827,1]);
 
+    var rightFPaw = new Cylinder();
+    rightFPaw.color = [0.341, 0.173, 0.035, 1.0, 1.0]; 
+    rightFPaw.matrix = rightFCoord;
+    rightFPaw.matrix.translate(0, .99, .7); 
+    rightFPaw.matrix.rotate(90, 90, g_rightPAngle, 1); //change the 3rd one
+    rightFPaw.matrix.scale(2,1,.4);
+    rightFPaw.render();
+
     var rightBack2 = new Cube();
     rightBack2.matrix = rightBCoord;
-    rightBack2.matrix.translate(0, .3,0.0);
-    rightBack2.matrix.rotate(0, 0,0,1);
+    rightBack2.matrix.translate(0, .3,0.001);
+    rightBack2.matrix.rotate(g_rightFAngle, 0,0,1);
     rightBack2.matrix.scale(0.1, .2, .1);
     rightBack2.render([0.922, 0.871, 0.827,1]);
+
+    var rightBPaw = new Cylinder();
+    rightBPaw.color = [0.341, 0.173, 0.035, 1.0, 1.0]; 
+    rightBPaw.matrix = rightBCoord;
+    rightBPaw.matrix.translate(0, 0.99, .7); 
+    rightBPaw.matrix.rotate(90, 90, g_rightPAngle, 1); //change the 3rd one
+    rightBPaw.matrix.scale(2,1,.4);
+    rightBPaw.render();
 
     var tail = new Pyramid();
     tail.color = [0.439, 0.231, 0.055, 1];
@@ -354,11 +453,8 @@ function renderAllShapes(){
     tail.matrix.rotate(g_tailAngle, 0,0,1);
     tail.matrix.scale(0.15, .6, .3);
     tail.render();
-    /*
-    const cylinder = new Cylinder();
-    cylinder.color = [1.0, 0.0, 0.0, 1.0]; // Red cylinder
-    cylinder.matrix.translate(0, 0., 0.5); // Move to center
-    cylinder.render();*/
+    
+    
 
     var duration = performance.now() - startTime;
     sendTextToHTML(" ms: " + Math.floor(duration) + " fps:  " + Math.floor(10000/duration)/10, "numdot");
