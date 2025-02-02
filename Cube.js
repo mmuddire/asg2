@@ -5,8 +5,13 @@ class Cube{
         this.matrix = new Matrix4();
     }
 
-    render(){
-        var rgba = this.color;
+    render(c){
+        var rgba;
+        if (c == null){
+            rgba = this.color;
+        } else {
+            rgba = c;
+        }
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
         
