@@ -4,67 +4,75 @@ class Sphere {
         this.position = [0.0, 0.0, 0.0];
         this.color = [1.0, 1.0, 1.0, 1.0];
         this.radius = 0.5;
-        this.latSegments = 20;  // Latitude segments
-        this.lonSegments = 30;  // Longitude segments
+        this.latSegments = 15;
+        this.lonSegments = 15;
         this.matrix = new Matrix4();
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.indexCount = 0;
+        
+        this.generateGeometry();
+    }
+
+    generateGeometry() {
+        const vertices = [];
+        const indices = [];
+        const latSegments = this.latSegments;
+        const lonSegments = this.lonSegments;
+
+        for (let lat = 0; lat <= latSegments; lat++) {
+            const theta = lat * Math.PI / latSegments;
+            const sinTheta = Math.sin(theta);
+            const cosTheta = Math.cos(theta);
+
+            for (let lon = 0; lon <= lonSegments; lon++) {
+                const phi = lon * 2 * Math.PI / lonSegments;
+                const sinPhi = Math.sin(phi);
+                const cosPhi = Math.cos(phi);
+
+                vertices.push(
+                    cosPhi * sinTheta,  // X
+                    cosTheta,           // Y
+                    sinPhi * sinTheta   // Z
+                );
+            }
+        }
+
+        for (let lat = 0; lat < latSegments; lat++) {
+            for (let lon = 0; lon < lonSegments; lon++) {
+                const first = (lat * (lonSegments + 1)) + lon;
+                const second = first + lonSegments + 1;
+
+                indices.push(first, second, first + 1);
+                indices.push(second, second + 1, first + 1);
+            }
+        }
+
+        this.vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+        this.indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+        
+        this.indexCount = indices.length;
     }
 
     render() {
-        const rgba = this.color;
-        const latSegments = this.latSegments;
-        const lonSegments = this.lonSegments;
-        const radius = this.radius;
-        const pos = this.position;
+        const transform = new Matrix4(this.matrix)
+            .translate(this.position[0], this.position[1], this.position[2])
+            .scale(this.radius, this.radius, this.radius);
 
-        gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-        gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
+        gl.uniform4fv(u_FragColor, this.color);
+        gl.uniformMatrix4fv(u_ModelMatrix, false, transform.elements);
 
-        // Iterate over latitude segments
-        for (let lat = 0; lat <= latSegments; lat++) {
-            let theta1 = (lat / latSegments) * Math.PI;
-            let theta2 = ((lat + 1) / latSegments) * Math.PI;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(a_Position);
 
-            let sinTheta1 = Math.sin(theta1);
-            let cosTheta1 = Math.cos(theta1);
-            let sinTheta2 = Math.sin(theta2);
-            let cosTheta2 = Math.cos(theta2);
-
-            // Iterate over longitude segments
-            for (let lon = 0; lon <= lonSegments; lon++) {
-                let phi1 = (lon / lonSegments) * 2 * Math.PI;
-                let phi2 = ((lon + 1) / lonSegments) * 2 * Math.PI;
-
-                let sinPhi1 = Math.sin(phi1);
-                let cosPhi1 = Math.cos(phi1);
-                let sinPhi2 = Math.sin(phi2);
-                let cosPhi2 = Math.cos(phi2);
-
-                // Define vertices for each triangle
-                let v1 = [
-                    pos[0] + radius * sinTheta1 * cosPhi1,
-                    pos[1] + radius * cosTheta1,
-                    pos[2] + radius * sinTheta1 * sinPhi1
-                ];
-                let v2 = [
-                    pos[0] + radius * sinTheta2 * cosPhi1,
-                    pos[1] + radius * cosTheta2,
-                    pos[2] + radius * sinTheta2 * sinPhi1
-                ];
-                let v3 = [
-                    pos[0] + radius * sinTheta2 * cosPhi2,
-                    pos[1] + radius * cosTheta2,
-                    pos[2] + radius * sinTheta2 * sinPhi2
-                ];
-                let v4 = [
-                    pos[0] + radius * sinTheta1 * cosPhi2,
-                    pos[1] + radius * cosTheta1,
-                    pos[2] + radius * sinTheta1 * sinPhi2
-                ];
-
-                // Draw two triangles for each segment
-                drawTriangle3D([v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], v3[0], v3[1], v3[2]]);
-                drawTriangle3D([v1[0], v1[1], v1[2], v3[0], v3[1], v3[2], v4[0], v4[1], v4[2]]);
-            }
-        }
+        gl.drawElements(gl.TRIANGLES, this.indexCount, gl.UNSIGNED_SHORT, 0);
     }
 }

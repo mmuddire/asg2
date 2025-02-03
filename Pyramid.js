@@ -10,13 +10,12 @@ class Pyramid {
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
 
-        // Base (4th argument is Z-coordinate for 3D)
+        // Base 
         drawTriangle3D([ -0.5,-0.5,0.0,  0.5,-0.5,0.0, 0.0,0.5,0.0 ]);
         gl.uniform4f(u_FragColor, rgba[0]*.8, rgba[1]*.8, rgba[2]*.8, rgba[3]);
         
         // Front face
         drawTriangle3D([ -0.5, -0.5, 0.0,  0.5, -0.5, 0.0,  0.0, 0.0, 0.7 ]);
-        
         
         // Left face
         drawTriangle3D([ -0.5, -0.5, 0.0,  0.0, 0.5, 0.0,  0.0, 0.0, 0.7 ]);

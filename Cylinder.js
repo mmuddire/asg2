@@ -10,11 +10,9 @@ class Cylinder {
         const rgba = this.color;
         const segments = this.segments;
         
-        // Set uniform matrix and base color
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
 
-        // Cylinder parameters
         const radius = 0.5;
         const height = 1.0;
         const angleStep = 360 / segments;
@@ -24,13 +22,11 @@ class Cylinder {
             const angle1 = angle * Math.PI / 180;
             const angle2 = (angle + angleStep) * Math.PI / 180;
 
-            // Calculate bottom and top points
             const x1 = radius * Math.cos(angle1);
             const y1 = radius * Math.sin(angle1);
             const x2 = radius * Math.cos(angle2);
             const y2 = radius * Math.sin(angle2);
 
-            // Side triangles
             drawTriangle3D([x1, y1, 0,  x2, y2, 0,  x2, y2, height]);
             drawTriangle3D([x1, y1, 0,  x2, y2, height,  x1, y1, height]);
         }

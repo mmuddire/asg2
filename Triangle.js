@@ -11,7 +11,6 @@ class Triangle{
         var rgba = this.color;
         var size = this.size;
 
-        //gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
         gl.uniform1f(u_Size, size);
         var d = this.size/200.0
@@ -20,10 +19,6 @@ class Triangle{
 }
 
 function drawTriangle(vertices){
-    //let triangle = new Float32Array([-0.5,-0.5, 0.0,
-    //                                  0.5,-0.5, 0.0,
-    //                                  0.0, 0.5, 0.0]);
-
     var n = 3;
     
     let vertexBuffer = gl.createBuffer(); 
@@ -42,10 +37,6 @@ function drawTriangle(vertices){
   }
 
   function drawTriangle3D(vertices){
-    //let triangle = new Float32Array([-0.5,-0.5, 0.0,
-    //                                  0.5,-0.5, 0.0,
-    //                                  0.0, 0.5, 0.0]);
-
     var n = 3;
     
     let vertexBuffer = gl.createBuffer(); 

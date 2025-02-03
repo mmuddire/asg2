@@ -9,7 +9,6 @@ var VS = `
         gl_PointSize = u_Size;
     }`;
 
-
 // Fragment shader program
 var FS = `
     precision mediump float;
@@ -25,10 +24,10 @@ let a_Position;
 let u_FragColor;
 let u_Size;
   
+//set up
 function setUpWegGL(){
     canvas = document.getElementById('webgl');
   
-    // Get the rendering context for WebGL
     gl = canvas.getContext("webgl", { preserveDrawingBuffer: true});
 
     if (!gl) {
@@ -38,6 +37,7 @@ function setUpWegGL(){
     gl.enable(gl.DEPTH_TEST);
 }
 
+//connect global vars
 function connectVariablesToGLSL(){
     if(!initShaders(gl, VS, FS)){
         console.log("Failed to load/compile shaders");
@@ -78,7 +78,8 @@ function connectVariablesToGLSL(){
     gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 }
 
-let g_globalCamAngle = 0;
+//button and slider vars
+let g_globalCamAngle = 30;
 let g_tailAngle = 115;
 let g_headAngle = 0;
 let g_earsAngle = -90;
@@ -103,8 +104,7 @@ let g_rightPAnime = false;
 let g_mouseR = false;
 let g_spheresList = [];
 
-
-
+//connect html to actions
 function addActionsForHtmlUI(){
 
     document.getElementById('tailAnimeOff').onclick = function(){g_tailAnime=false;};
@@ -150,7 +150,8 @@ function addActionsForHtmlUI(){
     document.getElementById('camAngleSlide').addEventListener('mousemove', function() {g_globalCamAngle = this.value; renderAllShapes(); }); 
     
 }
-  
+
+
 function main() {
     setUpWegGL();
 
@@ -163,7 +164,6 @@ function main() {
             g_pokeActive = true;
             addRandomSpheres();
             
-            // Reset the poke animation after 1 second
             setTimeout(() => { g_pokeActive = false; }, 1000);
         } else {
             isDragging = true;
@@ -177,7 +177,6 @@ function main() {
             const deltaX = ev.clientX - lastMouseX;
             const deltaY = ev.clientY - lastMouseY;
 
-            // Update rotation angles
             g_globalAngleY += deltaX * 0.5;
             g_globalAngleX -= deltaY * 0.5; 
 
@@ -198,10 +197,6 @@ function main() {
     requestAnimationFrame(tick);
 }
 
-function click(ev){
-    let [x,y] = convertCoordinatedEventToGL(ev);
-}
-
 var g_startTime = performance.now()/1000.0;
 var g_seconds = performance.now()/1000.0 - g_startTime;
 
@@ -215,109 +210,19 @@ function tick(){
     requestAnimationFrame(tick);
 }
 
-var g_shapesList = [];
-
-function convertCoordinatedEventToGL(ev){
-    var x = ev.clientX;
-    var y = ev.clientY;
-    var rect = ev.target.getBoundingClientRect();
-
-    x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
-    y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
-
-    return([x,y]);
-}
-
-function updateAnimationAngles(){
-    if(g_tailAnime){
-        let minAngle = 50;
-        let maxAngle = 115;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_tailAngle = midAngle + angleRange * Math.sin(3*g_seconds);
-    }
-    if(g_headAnime){
-        let minAngle = -50;
-        let maxAngle = 50;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_headAngle = midAngle + angleRange * Math.sin(.7*g_seconds);
-    }
-
-    if(g_earsAnime){
-        let minAngle = -90;
-        let maxAngle = 15;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_earsAngle = midAngle + angleRange * Math.sin(2*g_seconds);
-    }
-
-    if(g_leftLegAnime){
-        let minAngle = 150;
-        let maxAngle = 240;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_leftAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
-    }
-
-    if(g_leftFAnime){
-        let minAngle = -90;
-        let maxAngle = 0;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_leftFAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
-    }
-
-    if(g_leftPAnime){
-        let minAngle = -90;
-        let maxAngle = 0;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_leftPAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
-    }
-
-    if(g_rightLegAnime){
-        let minAngle = 150;
-        let maxAngle = 240;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_rightAngle = midAngle + angleRange * Math.sin(1.5*g_seconds);
-    }
-
-    if(g_rightFAnime){
-        let minAngle = -90;
-        let maxAngle = 0;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_rightFAngle = midAngle + angleRange * Math.sin(1.5*g_seconds);
-    }
-
-    if(g_rightPAnime){
-        let minAngle = -90;
-        let maxAngle = 0;
-        let angleRange = (maxAngle - minAngle) / 2;
-        let midAngle = (maxAngle + minAngle) / 2;
-        g_rightPAngle = midAngle + angleRange * Math.sin(g_seconds);
-    } 
-
-}
-
 function addRandomSpheres() {
     for (let i = 0; i < 5; i++) {  
         let sphere = new Sphere();
         sphere.position = [
-            Math.random() * 2 - 1,  // X coordinate in WebGL space (-1 to 1)
-            Math.random() * 2 - 1,  // Y coordinate in WebGL space (-1 to 1)
-            Math.random() * 2 - 1   // Z coordinate in WebGL space (-1 to 1)
+            Math.random() * 2 - 1,
+            Math.random() * 2 - 1,
+            Math.random() * 2 - 1
         ];
-        sphere.color = [Math.random(), Math.random(), Math.random(), 1]; // Random RGBA color
-        sphere.radius = Math.random() * 0.1 + 0.02; // Random radius (0.05 to 0.25)
-        sphere.latSegments = 15; // Moderate resolution for performance
-        sphere.lonSegments = 15;
+        sphere.color = [Math.random(), Math.random(), Math.random(), 1];
+        sphere.radius = Math.random() * 0.1 + 0.02;
         g_spheresList.push(sphere);
     }
 }
-
 
 function renderAllShapes(){
 
@@ -478,6 +383,80 @@ function renderAllShapes(){
     
     var duration = performance.now() - startTime;
     sendTextToHTML(" ms: " + Math.floor(duration) + " fps:  " + Math.floor(10000/duration)/10, "numdot");
+}
+
+function updateAnimationAngles(){
+    if(g_tailAnime){
+        let minAngle = 50;
+        let maxAngle = 115;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_tailAngle = midAngle + angleRange * Math.sin(3*g_seconds);
+    }
+    if(g_headAnime){
+        let minAngle = -50;
+        let maxAngle = 50;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_headAngle = midAngle + angleRange * Math.sin(.7*g_seconds);
+    }
+
+    if(g_earsAnime){
+        let minAngle = -90;
+        let maxAngle = 15;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_earsAngle = midAngle + angleRange * Math.sin(2*g_seconds);
+    }
+
+    if(g_leftLegAnime){
+        let minAngle = 150;
+        let maxAngle = 240;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_leftAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
+    }
+
+    if(g_leftFAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_leftFAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
+    }
+
+    if(g_leftPAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_leftPAngle = midAngle + angleRange * Math.sin(1.5*-g_seconds);
+    }
+
+    if(g_rightLegAnime){
+        let minAngle = 150;
+        let maxAngle = 240;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_rightAngle = midAngle + angleRange * Math.sin(1.5*g_seconds);
+    }
+
+    if(g_rightFAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_rightFAngle = midAngle + angleRange * Math.sin(1.5*g_seconds);
+    }
+
+    if(g_rightPAnime){
+        let minAngle = -90;
+        let maxAngle = 0;
+        let angleRange = (maxAngle - minAngle) / 2;
+        let midAngle = (maxAngle + minAngle) / 2;
+        g_rightPAngle = midAngle + angleRange * Math.sin(g_seconds);
+    } 
+
 }
 
 function sendTextToHTML(text, htmlID){
