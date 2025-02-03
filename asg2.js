@@ -92,15 +92,15 @@ let g_rightPAngle = 0;
 let g_globalAngleY = 0; 
 let g_globalAngleX = 0; 
 
-let g_tailAnime = false;
-let g_headAnime = false;
-let g_earsAnime = false;
-let g_leftLegAnime = false;
-let g_rightLegAnime = false;
-let g_leftFAnime = false;
-let g_rightFAnime = false;
-let g_leftPAnime = false;
-let g_rightPAnime = false;
+let g_tailAnime = true;
+let g_headAnime = true;
+let g_earsAnime = true;
+let g_leftLegAnime = true;
+let g_rightLegAnime = true;
+let g_leftFAnime = true;
+let g_rightFAnime = true;
+let g_leftPAnime = true;
+let g_rightPAnime = true;
 let g_mouseR = false;
 let g_spheresList = [];
 
