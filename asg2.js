@@ -1,10 +1,12 @@
 // Vertex shader program
 var VS = `
     attribute vec4 a_Position;
+    uniform float u_Size;
     uniform mat4 u_ModelMatrix;
     uniform mat4 u_GlobalRotateMatrix;
     void main(){
         gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
+        gl_PointSize = u_Size;
     }`;
 
 
@@ -24,11 +26,9 @@ let u_FragColor;
 let u_Size;
   
 function setUpWegGL(){
-    // Retrieve <canvas> element
     canvas = document.getElementById('webgl');
   
     // Get the rendering context for WebGL
-    //gl = getWebGLContext(canvas);
     gl = canvas.getContext("webgl", { preserveDrawingBuffer: true});
 
     if (!gl) {
@@ -56,6 +56,12 @@ function connectVariablesToGLSL(){
         return;
     }
 
+    u_Size = gl.getUniformLocation(gl.program, 'u_Size');
+    if(!u_Size){
+        console.log("Failed to get the storage location of u_Size");
+        return;
+    }
+
     u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
     if(!u_ModelMatrix){
         console.log("Failed to get the storage location of u_ModelMatrix");
@@ -72,15 +78,7 @@ function connectVariablesToGLSL(){
     gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 }
 
-const POINT = 0;
-const TRIANGLE = 1;
-const CIRCLE = 2;
-
-let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
-let g_selectedSize=5;
-let g_selectedType=POINT; 
 let g_globalCamAngle = 0;
-
 let g_tailAngle = 115;
 let g_headAngle = 0;
 let g_earsAngle = -90;
@@ -90,7 +88,8 @@ let g_leftFAngle = 0;
 let g_rightFAngle = 0;
 let g_leftPAngle = 0;
 let g_rightPAngle = 0;
-
+let g_globalAngleY = 0; 
+let g_globalAngleX = 0; 
 
 let g_tailAnime = false;
 let g_headAnime = false;
@@ -102,9 +101,8 @@ let g_rightFAnime = false;
 let g_leftPAnime = false;
 let g_rightPAnime = false;
 let g_mouseR = false;
+let g_spheresList = [];
 
-let g_globalAngleY = 0; // Horizontal rotation (Y-axis)
-let g_globalAngleX = 0; // Vertical rotation (X-axis)
 
 
 function addActionsForHtmlUI(){
@@ -161,9 +159,17 @@ function main() {
     addActionsForHtmlUI();
     
     canvas.onmousedown = function(ev) {
-        isDragging = true;
-        lastMouseX = ev.clientX;
-        lastMouseY = ev.clientY;
+        if (ev.shiftKey) {
+            g_pokeActive = true;
+            addRandomSpheres();
+            
+            // Reset the poke animation after 1 second
+            setTimeout(() => { g_pokeActive = false; }, 1000);
+        } else {
+            isDragging = true;
+            lastMouseX = ev.clientX;
+            lastMouseY = ev.clientY;
+        }
     };
 
     canvas.onmousemove = function(ev) {
@@ -173,9 +179,8 @@ function main() {
 
             // Update rotation angles
             g_globalAngleY += deltaX * 0.5;
-            g_globalAngleX -= deltaY * 0.5; // Negative for natural rotation
+            g_globalAngleX -= deltaY * 0.5; 
 
-            // Clamp vertical rotation
             g_globalAngleX = Math.max(-90, Math.min(90, g_globalAngleX));
 
             lastMouseX = ev.clientX;
@@ -195,42 +200,6 @@ function main() {
 
 function click(ev){
     let [x,y] = convertCoordinatedEventToGL(ev);
-
-    canvas.style.cursor = g_selectedType === ERASER ? 'crosshair' : 'default';
-
-
-    if (g_selectedType === ERASER) {
-        // Eraser Mode: Remove shapes near the click position
-        const threshold = 0.05; // Tolerance for removing shapes
-        g_shapesList = g_shapesList.filter(shape => {
-            const dx = shape.position[0] - x;
-            const dy = shape.position[1] - y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            return distance > threshold; // Keep shapes outside the eraser's range
-        });
-
-        renderAllShapes();
-        return;
-    }
-
-    let shape; 
-    if(g_selectedType==POINT){
-        shape = new Point();
-    } else if (g_selectedType==TRIANGLE) {
-        shape = new Triangle();
-    } else {
-        shape = new Circle();
-        shape.segments = g_selectedSegments;
-        
-    }
-    shape.position=[x,y];
-    shape.color=g_selectedColor.slice();
-    shape.size=g_selectedSize;
-    g_shapesList.push(shape);
-
-    renderAllShapes();
-    
 }
 
 var g_startTime = performance.now()/1000.0;
@@ -238,7 +207,6 @@ var g_seconds = performance.now()/1000.0 - g_startTime;
 
 function tick(){
     g_seconds = performance.now()/1000.0 - g_startTime;
-    //console.log(g_seconds);
 
     updateAnimationAngles();
 
@@ -330,12 +298,26 @@ function updateAnimationAngles(){
         let angleRange = (maxAngle - minAngle) / 2;
         let midAngle = (maxAngle + minAngle) / 2;
         g_rightPAngle = midAngle + angleRange * Math.sin(g_seconds);
-    }
-
-    
-
+    } 
 
 }
+
+function addRandomSpheres() {
+    for (let i = 0; i < 5; i++) {  
+        let sphere = new Sphere();
+        sphere.position = [
+            Math.random() * 2 - 1,  // X coordinate in WebGL space (-1 to 1)
+            Math.random() * 2 - 1,  // Y coordinate in WebGL space (-1 to 1)
+            Math.random() * 2 - 1   // Z coordinate in WebGL space (-1 to 1)
+        ];
+        sphere.color = [Math.random(), Math.random(), Math.random(), 1]; // Random RGBA color
+        sphere.radius = Math.random() * 0.1 + 0.02; // Random radius (0.05 to 0.25)
+        sphere.latSegments = 15; // Moderate resolution for performance
+        sphere.lonSegments = 15;
+        g_spheresList.push(sphere);
+    }
+}
+
 
 function renderAllShapes(){
 
@@ -351,10 +333,12 @@ function renderAllShapes(){
         gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
     }
     
-
-    
-
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
+
+    // Render circles
+    for (let sphere of g_spheresList) {
+        sphere.render();
+    }
 
     var head = new Cube(); 
     head.color = [0.0, 1.0, 0.0, 1.0];
