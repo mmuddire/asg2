@@ -151,7 +151,6 @@ function addActionsForHtmlUI(){
     
 }
 
-
 function main() {
     setUpWegGL();
 
