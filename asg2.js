@@ -23,7 +23,6 @@ let gl;
 let a_Position;
 let u_FragColor;
 let u_Size;
-  
 //set up
 function setUpWegGL(){
     canvas = document.getElementById('webgl');
@@ -36,6 +35,7 @@ function setUpWegGL(){
     }
     gl.enable(gl.DEPTH_TEST);
 }
+
 
 //connect global vars
 function connectVariablesToGLSL(){
@@ -104,6 +104,7 @@ let g_rightPAnime = false;
 let g_mouseR = false;
 let g_spheresList = [];
 
+
 //connect html to actions
 function addActionsForHtmlUI(){
 
@@ -151,6 +152,7 @@ function addActionsForHtmlUI(){
     
 }
 
+
 function main() {
     setUpWegGL();
 
@@ -196,9 +198,9 @@ function main() {
     requestAnimationFrame(tick);
 }
 
+
 var g_startTime = performance.now()/1000.0;
 var g_seconds = performance.now()/1000.0 - g_startTime;
-
 function tick(){
     g_seconds = performance.now()/1000.0 - g_startTime;
 
@@ -208,6 +210,7 @@ function tick(){
 
     requestAnimationFrame(tick);
 }
+
 
 function addRandomSpheres() {
     for (let i = 0; i < 5; i++) {  
@@ -222,6 +225,7 @@ function addRandomSpheres() {
         g_spheresList.push(sphere);
     }
 }
+
 
 function renderAllShapes(){
 
@@ -384,6 +388,7 @@ function renderAllShapes(){
     sendTextToHTML(" ms: " + Math.floor(duration) + " fps:  " + Math.floor(10000/duration)/10, "numdot");
 }
 
+
 function updateAnimationAngles(){
     if(g_tailAnime){
         let minAngle = 50;
@@ -455,8 +460,8 @@ function updateAnimationAngles(){
         let midAngle = (maxAngle + minAngle) / 2;
         g_rightPAngle = midAngle + angleRange * Math.sin(g_seconds);
     } 
-
 }
+
 
 function sendTextToHTML(text, htmlID){
     var htmlElm = document.getElementById(htmlID);
